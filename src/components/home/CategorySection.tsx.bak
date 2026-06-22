@@ -1,0 +1,66 @@
+import { Link } from 'react-router-dom'
+import { useEffect } from 'react'
+import { useProductStore } from '@/stores/useProductStore'
+import { Server, Globe, Key, FileText, Shield } from 'lucide-react'
+import { cn } from '@/lib/utils'
+
+const FALLBACK_CATEGORIES = [
+  { id: 'vps', name: 'VPS Server', slug: 'vps-server', icon: Server, color: '#7c3aed' },
+  { id: 'panel', name: 'Panel Hosting', slug: 'panel-hosting', icon: Globe, color: '#2563eb' },
+  { id: 'license', name: 'License', slug: 'license-software', icon: Key, color: '#059669' },
+  { id: 'file', name: 'File Digital', slug: 'file-digital', icon: FileText, color: '#d97706' },
+  { id: 'vpn', name: 'VPN & Proxy', slug: 'vpn-proxy', icon: Shield, color: '#dc2626' },
+]
+
+export function CategorySection() {
+  const { categories, fetchCategories } = useProductStore()
+
+  useEffect(() => {
+    fetchCategories()
+  }, [])
+
+  const displayCategories = categories.length > 0
+    ? categories.slice(0, 8)
+    : FALLBACK_CATEGORIES.map(c => ({
+        id: c.id,
+        name: c.name,
+        slug: c.slug,
+        icon: '',
+        description: '',
+        productCount: 0,
+        color: c.color,
+      }))
+
+  return (
+    <section className="py-6 bg-white dark:bg-gray-900 border-y border-gray-200 dark:border-gray-800">
+      <div className="max-w-7xl mx-auto px-4">
+        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Kategori</h2>
+        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide" style={{ scrollbarWidth: 'none' }}>
+          {displayCategories.map((category) => (
+            <Link
+              key={category.id}
+              to={`/products?category=${category.slug}`}
+              className={cn(
+                'flex items-center gap-2 px-4 py-2.5 rounded-xl border transition-all shrink-0',
+                'border-gray-200 dark:border-gray-700 hover:border-violet-300 dark:hover:border-violet-700',
+                'hover:shadow-md hover:scale-105'
+              )}
+            >
+              <div
+                className="w-8 h-8 rounded-lg flex items-center justify-center"
+                style={{ backgroundColor: category.color || '#7c3aed' }}
+              >
+                <span className="text-white text-xs font-bold">
+                  {category.name.charAt(0)}
+                </span>
+              </div>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                {category.name}
+              </span>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
