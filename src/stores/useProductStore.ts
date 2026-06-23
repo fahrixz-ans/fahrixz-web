@@ -101,11 +101,20 @@ export const useProductStore = create<ProductState>((set, get) => ({
 
   getFlashSaleProducts: () => {
     const { products } = get()
-    return products.filter(p => p.isFlashSale && p.discountPrice > 0)
+    return products.filter(p => {
+      const prod = p as Product & { isFlashSale?: boolean; discountPrice?: number }
+      return prod.isFlashSale === true && (prod.discountPrice ?? 0) > 0
+    })
   },
 
   getBestSellers: () => {
     const { products } = get()
-    return [...products].sort((a, b) => b.soldCount - a.soldCount).slice(0, 10)
+    return [...products]
+      .sort((a, b) => {
+        const prodA = a as Product & { soldCount?: number }
+        const prodB = b as Product & { soldCount?: number }
+        return (prodB.soldCount ?? 0) - (prodA.soldCount ?? 0)
+      })
+      .slice(0, 10)
   },
 }))
